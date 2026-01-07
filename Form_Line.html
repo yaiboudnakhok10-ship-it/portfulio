@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ฟอร์มบันทึกข้อมูล</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      padding: 0;
+    }
+    
+    .container {
+      background: white;
+      padding: 20px;
+      width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 24px;
+      text-align: center;
+      font-weight: 700;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    label .required {
+      color: #e74c3c;
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      background: linear-gradient(135deg, #999 0%, #777 100%);
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .alert {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+    
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 15px;
+      color: #667eea;
+      font-weight: 600;
+    }
+    
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+      background: #28a745;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    small {
+      display: block;
+      margin-top: 5px;
+      color: #666;
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 16px;
+      }
+      
+      h1 {
+        font-size: 22px;
+      }
+      
+      .subtitle {
+        font-size: 13px;
+        margin-bottom: 25px;
+      }
+
+      input, textarea {
+        font-size: 16px;
+        padding: 14px 15px;
+      }
+
+      button {
+        padding: 16px;
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1> ฟอร์มบันทึกข้อมูล</h1>
+    <!-- <p class="subtitle">
+      <span class="status-indicator"></span>
+      กรอกข้อมูลด้านล่าง ระบบจะบันทึกและแจ้งเตือนผ่าน LINE อัตโนมัติ
+    </p> -->
+    
+    <form id="dataForm">
+      <div class="form-group">
+        <label for="name">
+          👤 ชื่อ-นามสกุล <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          required 
+          placeholder="เช่น สมชาย ใจดี"
+          autocomplete="name"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="email">
+          📧 อีเมล <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          required 
+          placeholder="example@email.com"
+          autocomplete="email"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="phone">
+          📱 เบอร์โทรศัพท์ <span class="required">*</span>
+        </label>
+        <input 
+          type="tel" 
+          id="phone" 
+          name="phone" 
+          required 
+          placeholder="08X-XXX-XXXX"
+          pattern="[0-9]{9,10}"
+          autocomplete="tel"
+        >
+        <small>กรอกตัวเลข 9-10 หลัก (ไม่ต้องใส่ขีด)</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="note">
+          📝 หมายเหตุ
+        </label>
+        <textarea 
+          id="note" 
+          name="note" 
+          placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"
+        ></textarea>
+      </div>
+      
+      <button type="submit" id="submitBtn">
+        ส่งข้อมูล
+      </button>
+      
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        กำลังบันทึกข้อมูล...
+      </div>
+      
+      <div class="alert" id="alert"></div>
+    </form>
+  </div>
+
+  <script>
+    // ⚠️ สำคัญ! ใส่ URL ของ Google Apps Script ที่คุณ Deploy
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEa8R09YWazGiS-SvbOjjgo9Q9HpzevV0TDcd2-MkAGzIlwFy8i3OfIdIOlI2ecff3Pw/exec';
+    
+    const form = document.getElementById('dataForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loading = document.getElementById('loading');
+    const alert = document.getElementById('alert');
+    const phoneInput = document.getElementById('phone');
+    
+    // ตรวจสอบเบอร์โทร - อนุญาตเฉพาะตัวเลข
+    phoneInput.addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    
+    // ตรวจสอบข้อมูลก่อนส่ง
+    function validateForm() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      
+      if (!name) {
+        showAlert('error', '❌ กรุณากรอกชื่อ-นามสกุล');
+        return false;
+      }
+      
+      if (!email || !email.includes('@')) {
+        showAlert('error', '❌ กรุณากรอกอีเมลให้ถูกต้อง');
+        return false;
+      }
+      
+      if (!phone || phone.length < 9 || phone.length > 10) {
+        showAlert('error', '❌ กรุณากรอกเบอร์โทรศัพท์ 9-10 หลัก');
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // ส่งข้อมูล
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // ตรวจสอบข้อมูล
+      if (!validateForm()) {
+        return;
+      }
+      
+      // แสดง Loading
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'กำลังส่ง...';
+      loading.style.display = 'block';
+      alert.style.display = 'none';
+      
+      // เตรียมข้อมูล
+      const formData = new FormData(form);
+      
+      try {
+        // ส่งข้อมูลไปยัง Google Apps Script
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData,
+          mode: 'no-cors'
+        });
+        
+        // ซ่อน Loading
+        loading.style.display = 'none';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'ส่งข้อมูล';
+        
+        // แสดงความสำเร็จ
+        showAlert('success', '✅ บันทึกข้อมูลสำเร็จแล้ว! กรุณาตรวจสอบใน Google Sheets และ LINE Notify');
+        
+        // ล้างฟอร์ม
+        form.reset();
+        
+        // ซ่อนข้อความหลัง 8 วินาที
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 8000);
+        
+      } catch (error) {
+        // ซ่อน Loading
+        loading.style.display = 'none';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'ส่งข้อมูล';
+        
+        // แสดง Error
+        showAlert('error', '❌ ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
+      }
+    });
+    
+    function showAlert(type, message) {
+      alert.className = 'alert ' + type;
+      alert.textContent = message;
+      alert.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
